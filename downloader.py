@@ -1,11 +1,9 @@
 from yt_dlp import YoutubeDL
-
-def formats_selector(ctx):
-    formats = ctx.get('formats')[::-1]
+import ffmpeg
 
     
 
-def list_resolutions(url):
+def videoResSelector(url):
     ydl_opts = {
         'quiet': True
     }
@@ -48,6 +46,22 @@ def download(url, formatID):
         ## DOPSAT DOWNLOADER SCRIPT POTOM MERGER
 
 
+def audioQtySelector(url) :
+    ydl_opts = {
+        'quiet': True
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        data = ydl.extract_info(url, download=False) 
+
+    formats = data.get('formats', [])
+
+    for f in formats:
+        if f.get('resolution') == 'audio only' and f.get('ext') == "m4a" and len(f.get('format_id')) == 3:
+            return f.get('format_id')
+        else:
+            continue
+
+
 def list_formats(url):
     options = {
         'quiet': True,  # Suppress command-line output
@@ -62,5 +76,5 @@ def list_formats(url):
 # Example usage
 if __name__ == "__main__":
     video_url = "https://www.youtube.com/watch?v=MZZSMaEAC2g"
-    list_resolutions(video_url)
+    videoResSelector(video_url)
 #list_formats(video_url)
