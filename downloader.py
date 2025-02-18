@@ -5,14 +5,14 @@ from datetime import datetime
 
    
 
-def videoResSelector(url):
+def videoResSelector(url, title):
     ydl_opts = {
         'quiet': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
-    print("Available resolutions for " + getTitle(url) + ":")
+    print(f"Available resolutions for " + title + ":")
     formats = data.get('formats', [])
     
     usrToID = {}
@@ -41,6 +41,7 @@ def videoResSelector(url):
         
 
 def VideoDownloadWithSelector(url):
+    title = getTitle(url)
     now = datetime.now() 
     tempDirName = str(now.strftime("%d_%m_%Y_%H%M%S"))
     os.mkdir(tempDirName)
@@ -61,17 +62,13 @@ def VideoDownloadWithSelector(url):
 
     ##ffmpeg.concat("./video", "./audio", v=1, a=1).output((str(getTitle(url)) + '.mp4')).run()
     
-    ##NEFUNGUJE FFMPEG INPUT KURVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    ## NEFUNGUJE FFMPEG INPUT KURVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 def MergeTracks():
-    print(os.getcwd())
-    ffmpeg.input("video.mp4").input("audio.m4a").output(
-        "output.mp4",
-        vcodec='copy',
-        acodec='aac',
-        strict='experimental',
-        shortest=None  # Ensures output stops at the shortest track length
-    ).run(overwrite_output=True)
+    video = ffmpeg.input('video.mp4', hwaccel='cuda')
+    audio = ffmpeg.input('audio.m4a', hwaccel='cuda')
+
+    ffmpeg.output(video, audio, "output.mp4",  vcodec='copy', acodec='aac', strict='experimental', shortest=None).run(overwrite_output=True)
 
 
 def videoDownload(url, formatID):
