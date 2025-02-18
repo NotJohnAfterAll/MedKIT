@@ -1,5 +1,5 @@
 from yt_dlp import YoutubeDL
-from ffmpeg import FFmpeg
+import ffmpeg
 import os
 from datetime import datetime
 
@@ -52,7 +52,7 @@ def VideoDownloadWithSelector(url):
        
     MergeTracks()
 
-    ##.input("video.mp4").input("audio.m4a").output("output.mp4", vcodec="copy", acodec="copy", strict="experimental").run(overwrite_output=True)
+    ##ffmpeg.input("video.mp4").input("audio.m4a").output("output.mp4", vcodec="copy", acodec="copy", strict="experimental").run(overwrite_output=True)
 
 
     ##outputstream = ffmpeg.output(ffmpeg.input("./video.mp4"), ffmpeg.input("./audio.m4a"), (str(getTitle(url)) + '.mp4'), vcodec='copy', acodec='copy')
@@ -64,7 +64,8 @@ def VideoDownloadWithSelector(url):
     ##NEFUNGUJE FFMPEG INPUT KURVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 def MergeTracks():
-    FFmpeg.input("video.mp4").input("audio.m4a").output(
+    print(os.getcwd())
+    ffmpeg.input("video.mp4").input("audio.m4a").output(
         "output.mp4",
         vcodec='copy',
         acodec='aac',
@@ -137,4 +138,4 @@ if __name__ == "__main__":
 def test():
     now = datetime.now() 
     print(str(now.strftime("%d/%m/%Y %H:%M:%S")))
-    
+
