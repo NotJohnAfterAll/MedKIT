@@ -1,6 +1,7 @@
 from yt_dlp import YoutubeDL
 import ffmpeg
 import os
+import shutil
 from datetime import datetime
 
    
@@ -12,7 +13,7 @@ def videoResSelector(url, title):
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
-    print(f"Available resolutions for " + title + ":")
+    print(f"Available resolutions for {title}:")
     formats = data.get('formats', [])
     
     usrToID = {}
@@ -28,16 +29,6 @@ def videoResSelector(url, title):
         
     usrInput = input("Enter number coresponding to your selected resolution and quality:")        
     return usrToID[int(usrInput)]
-    usrInput = 4
-    
-    ydl_opts = {
-        'quiet': False,
-        'format': usrToID.get(usrInput)
-    }
-    with YoutubeDL(ydl_opts) as ydl:
-        data = ydl.download(url) 
-    
-    #print(formats)
         
 
 def VideoDownloadWithSelector(url):
@@ -47,22 +38,18 @@ def VideoDownloadWithSelector(url):
     os.mkdir(tempDirName)
     os.chdir(tempDirName)
     
-    videoDownload(url, videoResSelector(url))
+    videoDownload(url, videoResSelector(url, title))
     audioDownload(url, audioQtySelector(url))
 
-       
     MergeTracks()
 
-    ##ffmpeg.input("video.mp4").input("audio.m4a").output("output.mp4", vcodec="copy", acodec="copy", strict="experimental").run(overwrite_output=True)
+    dTitle = title.replace(" ", "_")
+    os.rename("output.mp4", dTitle + '.mp4')
+    shutil.move(f"./{dTitle}.mp4", f"../{dTitle}.mp4")
+    os.chdir("../")
+    shutil.rmtree(tempDirName, ignore_errors=True)
 
 
-    ##outputstream = ffmpeg.output(ffmpeg.input("./video.mp4"), ffmpeg.input("./audio.m4a"), (str(getTitle(url)) + '.mp4'), vcodec='copy', acodec='copy')
-    ##ffmpeg.run(outputstream, quiet=False)
-
-
-    ##ffmpeg.concat("./video", "./audio", v=1, a=1).output((str(getTitle(url)) + '.mp4')).run()
-    
-    ## NEFUNGUJE FFMPEG INPUT KURVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
 def MergeTracks():
     video = ffmpeg.input('video.mp4', hwaccel='cuda')
@@ -80,7 +67,6 @@ def videoDownload(url, formatID):
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
     
-## UDELAT AUDIO DOWNLOAD A VE WORKDIR POTOM MERGNOUT DO JEDNOHO SOUBORU... DODELAT INTEGRACI DO MAIN.PY.... SMAZAT NEPOTREBNY FUNKCE
 
 def audioDownload(url, formatID):
     ydl_opts = {
