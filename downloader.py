@@ -1,5 +1,5 @@
 from yt_dlp import YoutubeDL
-import ffmpeg
+from ffmpeg import FFmpeg
 import os
 from datetime import datetime
 
@@ -12,6 +12,7 @@ def videoResSelector(url):
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
+    print("Available resolutions for " + getTitle(url) + ":")
     formats = data.get('formats', [])
     
     usrToID = {}
@@ -26,7 +27,7 @@ def videoResSelector(url):
         
         
     usrInput = input("Enter number coresponding to your selected resolution and quality:")        
-    return usrToID.get(usrInput)
+    return usrToID[int(usrInput)]
     usrInput = 4
     
     ydl_opts = {
@@ -39,16 +40,37 @@ def videoResSelector(url):
     #print(formats)
         
 
-def MasterDownload(url):
+def VideoDownloadWithSelector(url):
     now = datetime.now() 
-    tempDirName = str(now.strftime("%d/%m/%Y %H:%M:%S"))
+    tempDirName = str(now.strftime("%d_%m_%Y_%H%M%S"))
     os.mkdir(tempDirName)
     os.chdir(tempDirName)
     
+    videoDownload(url, videoResSelector(url))
+    audioDownload(url, audioQtySelector(url))
+
+       
+    MergeTracks()
+
+    ##.input("video.mp4").input("audio.m4a").output("output.mp4", vcodec="copy", acodec="copy", strict="experimental").run(overwrite_output=True)
+
+
+    ##outputstream = ffmpeg.output(ffmpeg.input("./video.mp4"), ffmpeg.input("./audio.m4a"), (str(getTitle(url)) + '.mp4'), vcodec='copy', acodec='copy')
+    ##ffmpeg.run(outputstream, quiet=False)
+
+
+    ##ffmpeg.concat("./video", "./audio", v=1, a=1).output((str(getTitle(url)) + '.mp4')).run()
     
-    Download(url, videoResSelector(url))
-        
-    
+    ##NEFUNGUJE FFMPEG INPUT KURVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+def MergeTracks():
+    FFmpeg.input("video.mp4").input("audio.m4a").output(
+        "output.mp4",
+        vcodec='copy',
+        acodec='aac',
+        strict='experimental',
+        shortest=None  # Ensures output stops at the shortest track length
+    ).run(overwrite_output=True)
 
 
 def videoDownload(url, formatID):
@@ -61,6 +83,15 @@ def videoDownload(url, formatID):
         ydl.download(url)
     
 ## UDELAT AUDIO DOWNLOAD A VE WORKDIR POTOM MERGNOUT DO JEDNOHO SOUBORU... DODELAT INTEGRACI DO MAIN.PY.... SMAZAT NEPOTREBNY FUNKCE
+
+def audioDownload(url, formatID):
+    ydl_opts = {
+        'outtmpl': "audio.%(ext)s",
+        'quiet': False,
+        'format': formatID
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        ydl.download(url)
 
 
 def audioQtySelector(url) :
@@ -78,6 +109,12 @@ def audioQtySelector(url) :
         else:
             continue
 
+def getTitle(url):
+    ydl_opts = {'quiet': True, 'noplaylist': True}
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return info.get('title')  
+
 
 def list_formats(url):
     options = {
@@ -92,8 +129,8 @@ def list_formats(url):
 
 # Example usage
 if __name__ == "__main__":
-    video_url = "https://www.youtube.com/watch?v=MZZSMaEAC2g"
-    videoResSelector(video_url)
+    url = "https://www.youtube.com/watch?v=doFViKgl-y0"
+    print(str(getTitle(url)) + '.mp4')
 #list_formats(video_url)
 
 
