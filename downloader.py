@@ -13,12 +13,15 @@ def videoResSelector(url, title):
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
-    print(f"Available resolutions for {title}:")
+    print(f"Available resolutions for {title}: ")
     formats = data.get('formats', [])
     
     usrToID = {}
     id = 1;
+
+
     for f in formats:
+        
         if f.get('resolution') != 'audio only' and "vp" in f.get('vcodec') and f.get('fps') > 23 and f.get('ext') == "mp4":
             usrToID.update({id : f.get('format_id')})
             print(id, f.get('resolution'), f"{int(f.get('tbr'))}k")
@@ -31,16 +34,19 @@ def videoResSelector(url, title):
     return usrToID[int(usrInput)]
         
 
-def VideoDownloadWithSelector(url):
+def VideoDownloadWithSelector():
+    url = input("Enter URL: ")
     title = getTitle(url)
     now = datetime.now() 
     tempDirName = str(now.strftime("%d_%m_%Y_%H%M%S"))
+
     os.mkdir(tempDirName)
     os.chdir(tempDirName)
     
     videoDownload(url, videoResSelector(url, title))
     audioDownload(url, audioQtySelector(url))
 
+    
     MergeTracks()
 
     dTitle = title.replace(" ", "_")
@@ -50,18 +56,19 @@ def VideoDownloadWithSelector(url):
     shutil.rmtree(tempDirName, ignore_errors=True)
 
 
-
 def MergeTracks():
+    print("Merging audio and video tracks... ")
     video = ffmpeg.input('video.mp4', hwaccel='cuda')
     audio = ffmpeg.input('audio.m4a', hwaccel='cuda')
 
-    ffmpeg.output(video, audio, "output.mp4",  vcodec='copy', acodec='aac', strict='experimental', shortest=None).run(overwrite_output=True)
+    ffmpeg.output(video, audio, "output.mp4",  vcodec='copy', acodec='aac', strict='experimental', shortest=None, loglevel='info').run(overwrite_output=True)
 
 
 def videoDownload(url, formatID):
+    print("Downloading video track... ")
     ydl_opts = {
         'outtmpl': "video.%(ext)s",
-        'quiet': False,
+        'quiet': True,
         'format': formatID
     }
     with YoutubeDL(ydl_opts) as ydl:
@@ -69,6 +76,7 @@ def videoDownload(url, formatID):
     
 
 def audioDownload(url, formatID):
+    print("Downloading audio track... ")
     ydl_opts = {
         'outtmpl': "audio.%(ext)s",
         'quiet': False,
@@ -100,22 +108,9 @@ def getTitle(url):
         return info.get('title')  
 
 
-def list_formats(url):
-    options = {
-        'quiet': True,  # Suppress command-line output
-        'listformats': True  # Display available formats
-    }
-    with YoutubeDL(options) as ydl:
-        try:
-            ydl.extract_info(url, download=False)
-        except Exception as e:
-            print(f"Error: {e}")
-
-# Example usage
 if __name__ == "__main__":
     url = "https://www.youtube.com/watch?v=doFViKgl-y0"
     print(str(getTitle(url)) + '.mp4')
-#list_formats(video_url)
 
 
 def test():
