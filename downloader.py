@@ -8,6 +8,7 @@ from datetime import datetime
 
 def videoResSelector(url, title):
     ydl_opts = {
+        'noplaylist': True,
         'quiet': True
     }
     with YoutubeDL(ydl_opts) as ydl:
@@ -22,7 +23,7 @@ def videoResSelector(url, title):
 
     for f in formats:
         
-        if f.get('resolution') != 'audio only' and "vp" in f.get('vcodec') and f.get('fps') > 23 and f.get('ext') == "mp4":
+        if f.get('resolution') != 'audio only' and ('vp' in f.get('vcodec') or 'avc1' in f.get('vcodec')) and f.get('fps') > 23 and f.get('ext') == "mp4":
             usrToID.update({id : f.get('format_id')})
             print(id, f.get('resolution'), f"{int(f.get('tbr'))}k")
             id = id + 1
@@ -37,23 +38,9 @@ def videoResSelector(url, title):
 def VideoDownloadWithSelector():
     url = input("Enter URL: ")
     title = getTitle(url)
-    now = datetime.now() 
-    tempDirName = str(now.strftime("%d_%m_%Y_%H%M%S"))
-
-    os.mkdir(tempDirName)
-    os.chdir(tempDirName)
     
     videoDownload(url, videoResSelector(url, title))
-    audioDownload(url, audioQtySelector(url))
-
-    
-    MergeTracks()
-
-    dTitle = title.replace(" ", "_")
-    os.rename("output.mp4", dTitle + '.mp4')
-    shutil.move(f"./{dTitle}.mp4", f"../{dTitle}.mp4")
-    os.chdir("../")
-    shutil.rmtree(tempDirName, ignore_errors=True)
+    print(f"Video downloaded successfully, you can find it in this directory named {title}")
 
 
 def MergeTracks():
@@ -65,11 +52,15 @@ def MergeTracks():
 
 
 def videoDownload(url, formatID):
-    print("Downloading video track... ")
+    audioFormatID = audioQtySelector(url)
+    combinedID_tuple = (formatID, audioFormatID)
+    combinedID = '+'.join(combinedID_tuple)
+    print(combinedID)
+    print("Downloading video and audio tracks... ")
     ydl_opts = {
-        'outtmpl': "video.%(ext)s",
+        'noplaylist': True,
         'quiet': True,
-        'format': formatID
+        'format': combinedID
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
