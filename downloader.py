@@ -55,7 +55,6 @@ def videoDownload(url, formatID):
     audioFormatID = audioQtySelector(url)
     combinedID_tuple = (formatID, audioFormatID)
     combinedID = '+'.join(combinedID_tuple)
-    print(combinedID)
     print("Downloading video and audio tracks... ")
     ydl_opts = {
         'noplaylist': True,
