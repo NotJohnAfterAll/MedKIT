@@ -16,7 +16,6 @@ def videoResSelector(url, title):
 
     print(f"Available resolutions for {title}: ")
     formats = data.get('formats', [])
-    
     usrToID = {}
     id = 1;
 
@@ -34,6 +33,34 @@ def videoResSelector(url, title):
     usrInput = input("Enter number coresponding to your selected resolution and quality:")        
     return usrToID[int(usrInput)]
         
+
+def videoBestQualitySelector(url, title):
+    ydl_opts = {
+        'quiet': True
+    }
+    with YoutubeDL(ydl_opts) as ydl:
+        data = ydl.extract_info(url, download=False) 
+
+    formats = data.get('formats', [])
+
+    for f in formats:
+        if f.get('resolution') != 'audio only' and ('vp' in f.get('vcodec') or 'avc1' in f.get('vcodec')) and f.get('fps') > 23 and f.get('ext') == "mp4" and len(f.get('format_id')) == 3:
+            selectedResolution = f.get('resolution')
+            selectedFormat = f.get('format_id')
+                
+        else:
+            continue
+        
+    print(f"Downloading best quality possible for {title}, being {selectedResolution}: ")
+    return selectedFormat
+
+def VideoDownloadBestQuality():
+    url = input("Enter URL: ")
+    title = getTitle(url)
+    
+    videoDownload(url, videoBestQualitySelector(url, title))
+    print(f"Video downloaded successfully, you can find it in this directory named {title}")
+
 
 def VideoDownloadWithSelector():
     url = input("Enter URL: ")
@@ -96,11 +123,11 @@ def getTitle(url):
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return info.get('title')  
+        
 
 
 if __name__ == "__main__":
-    url = "https://www.youtube.com/watch?v=doFViKgl-y0"
-    print(str(getTitle(url)) + '.mp4')
+    VideoDownloadBestQuality()
 
 
 def test():

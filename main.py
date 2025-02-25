@@ -4,12 +4,9 @@ from prompt_toolkit.completion import WordCompleter
 
 def downloadVideo():
     
-    def bestquality():
-        print("not implemented yet")
-    
     print("Select how you want to download: (BEST QUALITY - BQ, RESOLUTION SELECTOR - RS)")
     options = {
-        "BQ": bestquality,
+        "BQ": dl.VideoDownloadBestQuality,
         "RS": dl.VideoDownloadWithSelector
     }
 
