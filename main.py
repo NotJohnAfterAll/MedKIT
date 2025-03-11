@@ -4,16 +4,16 @@ from prompt_toolkit.completion import WordCompleter
 
 def downloadVideo():
     
-    print("Select how you want to download: (BEST QUALITY - BQ, RESOLUTION SELECTOR - RS)")
+    print("Select how you want to download: (BEST QUALITY, RESOLUTION SELECTOR)")
     options = {
-        "BQ": dl.VideoDownloadBestQuality,
-        "RS": dl.VideoDownloadWithSelector
+        "best quality": dl.VideoDownloadBestQuality,
+        "resolution selector": dl.VideoDownloadWithSelector
     }
 
     completer = WordCompleter(options.keys(), ignore_case=True)
     
     while True:
-        choice = prompt("Select an option: ", completer=completer).strip()
+        choice = prompt("Select an option: ", completer=completer).strip().lower()
         if choice in options:
             options[choice]()
             exit()
