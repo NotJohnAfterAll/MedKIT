@@ -27,7 +27,7 @@ def downloadAudio():
     print("Downloading Audio...")
 
 def convert():
-    threading.Thread(target=cc.ConvertVideo()).start()
+    threading.Thread(target=cc.Convert()).start()
 
 def transcode():
     print("Transcoding...")

@@ -9,14 +9,34 @@ import sys
 
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
 
-def getFile():
-    print("Function started")
+def Convert():
+    print("Select what file type you want to download (audio, video): ")
+    options = {
+        "audio": ConvertAudio,
+        "video": ConvertVideo
+    }
+
+    completer = WordCompleter(options.keys(), ignore_case=True)
+    
+    while True:
+        choice = prompt("Select an option: ", completer=completer).strip()
+        if choice in options:
+            options[choice]()
+            exit()
+        else:
+            print("Invalid choice. Try again.")
+
+
+def getFile(type):
+    types = {
+        "video": ("Videos", ".mp4 .mov .mkv .avi .webm"),
+        "audio": ("Audio", ".mp3 .flac .wav .m4a .ogg .webm .acc")
+    }
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     root.update()
     root.call('wm', 'attributes', '.', '-topmost', True)
-    print("update")
-    file = tkinter.filedialog.askopenfilename(filetypes=[("Media", ".mp4 .mov .mkv .avi .webm")])
+    file = tkinter.filedialog.askopenfilename(filetypes=[types[type]])
 
     if file == "":
         raise ValueError("File is empty")
@@ -29,17 +49,28 @@ def setTargetFormat(format):
 
 def ConvertVideo():
     formats = ["mp4", "mov", "mkv", "avi", "webm"]
-    file = getFile()
+    file = getFile("video")
     fileFormat = file.split(".")[-1].lower()
     formats.remove(fileFormat)
     userSelection(formats)
-    print("past user selecion")
 
     if targetFormat == "":
         raise ValueError("Invalid File")
 
-    print("past target check")
     convert(file, targetFormat)
+
+def ConvertAudio():
+    formats = ["mp3", "flac", "wav", "m4a", "ogg", "webm", "acc"]
+    file = getFile("audio")
+    fileFormat = file.split(".")[-1].lower()
+    formats.remove(fileFormat)
+    userSelection(formats)
+
+    if targetFormat == "":
+        raise ValueError("Invalid File")
+
+    convert(file, targetFormat)
+
 
 def convert(filepath, targetFormat):
     workdir = os.path.dirname(filepath)
@@ -50,6 +81,8 @@ def convert(filepath, targetFormat):
 
     input = ffmpeg.input(filepath, hwaccel='cuda')
     ffmpeg.output(input, filename).run()
+
+    print(f"Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
 def userSelection(formats):
     formatsClean = ' '.join(map(str, formats))
@@ -68,4 +101,4 @@ def userSelection(formats):
     
 
 if __name__ == "__main__":
-    ConvertVideo()
+    Convert()
