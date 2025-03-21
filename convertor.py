@@ -83,7 +83,7 @@ def ConvertImage():
     if targetFormat == "":
         raise ValueError("Invalid File")
 
-    convert(file, targetFormat)
+    stillconvert(file, targetFormat)
 
 def convert(filepath, targetFormat):
     workdir = os.path.dirname(filepath)
@@ -104,10 +104,12 @@ def stillconvert(filepath, targetFormat):
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
-    input = ffmpeg.input(filepath, hwaccel='cuda', vframes=1)
-    ffmpeg.output(input, filename, vframes=1, loglevel="quiet").run()
+
+    input = ffmpeg.input(filepath, hwaccel='cuda')
+    ffmpeg.output(input, filename, vframes=1).run()
     
-    print(f"Your file has been successfully converted, you can find it in same directory called '{filename}'")
+    
+    print(f"\n Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
 def userSelection(formats):
     formatsClean = ' '.join(map(str, formats))
