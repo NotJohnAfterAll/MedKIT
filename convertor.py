@@ -10,10 +10,11 @@ import sys
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
 
 def Convert():
-    print("Select what file type you want to download (audio, video): ")
+    print("Select what file type you want to download (video, audio, image): ")
     options = {
+        "video": ConvertVideo,
         "audio": ConvertAudio,
-        "video": ConvertVideo
+        "image": ConvertImage
     }
 
     completer = WordCompleter(options.keys(), ignore_case=True)
@@ -30,7 +31,8 @@ def Convert():
 def getFile(type):
     types = {
         "video": ("Videos", ".mp4 .mov .mkv .avi .webm"),
-        "audio": ("Audio", ".mp3 .flac .wav .m4a .ogg .webm .acc")
+        "audio": ("Audio", ".mp3 .flac .wav .m4a .ogg .webm .acc"),
+        "image": ("Images", ".jpg .jpeg .png .webp .svg .avif .ico")
     }
     root = tk.Tk()
     root.withdraw()  # Hide the main window
@@ -71,6 +73,17 @@ def ConvertAudio():
 
     convert(file, targetFormat)
 
+def ConvertImage():
+    formats = ["jpg", "jpeg", "png", "webp", "svg", "avif", "ico"]
+    file = getFile("image")
+    fileFormat = file.split(".")[-1].lower()
+    formats.remove(fileFormat)
+    userSelection(formats)
+
+    if targetFormat == "":
+        raise ValueError("Invalid File")
+
+    convert(file, targetFormat)
 
 def convert(filepath, targetFormat):
     workdir = os.path.dirname(filepath)
@@ -82,6 +95,18 @@ def convert(filepath, targetFormat):
     input = ffmpeg.input(filepath, hwaccel='cuda')
     ffmpeg.output(input, filename).run()
 
+    print(f"Your file has been successfully converted, you can find it in same directory called '{filename}'")
+
+def stillconvert(filepath, targetFormat):
+    workdir = os.path.dirname(filepath)
+    filename = os.path.basename(filepath)
+    filename = filename.rsplit(".", 1)[0]
+    filename = f"{filename}.{targetFormat}"
+    os.chdir(workdir)
+
+    input = ffmpeg.input(filepath, hwaccel='cuda', vframes=1)
+    ffmpeg.output(input, filename, vframes=1, loglevel="quiet").run()
+    
     print(f"Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
 def userSelection(formats):

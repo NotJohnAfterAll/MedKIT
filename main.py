@@ -4,24 +4,8 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 import threading
 
-def downloadVideo():
-    
-    print("Select how you want to download: (BEST QUALITY, RESOLUTION SELECTOR)")
-    options = {
-        "best quality": dl.VideoDownloadBestQuality,
-        "resolution selector": dl.VideoDownloadWithSelector
-    }
-
-    completer = WordCompleter(options.keys(), ignore_case=True)
-    
-    while True:
-        choice = prompt("Select an option: ", completer=completer).strip().lower()
-        if choice in options:
-            options[choice]()
-            exit()
-        else:
-            print("Invalid choice. Try again.")
-
+def download():
+    dl.Download()
     
 def downloadAudio():
     print("Downloading Audio...")
@@ -38,8 +22,7 @@ def exit_program():
 
 def main_menu():
     options = {
-        "downloadvideo": downloadVideo,
-        "downloadaudio": downloadAudio,
+        "download": download,
         "convert": convert,
         "transcode": transcode,
         "exit": exit_program
@@ -57,6 +40,6 @@ def main_menu():
 
 if __name__ == "__main__":
     print("Welcome to MedKIT")
-    print("Select what you want to do: (DOWNLOAD VIDEO - DV, DOWNLOAD AUDIO - DA, CONVERT - CC, TRANSCODE = TS)")
+    print("Select what you want to do: (download, convert)")
     main_menu()
 

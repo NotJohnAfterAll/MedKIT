@@ -3,8 +3,43 @@ import ffmpeg
 import os
 import shutil
 from datetime import datetime
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
-   
+def Download():
+    print("Select how you want to download: (VIDEO, AUDIO)")
+    options = {
+        "video": VideoDownload,
+        "audio": VideoDownloadWithSelector
+    }
+
+    completer = WordCompleter(options.keys(), ignore_case=True)
+    
+    while True:
+        choice = prompt("Select an option: ", completer=completer).strip().lower()
+        if choice in options:
+            options[choice]()
+            exit()
+        else:
+            print("Invalid choice. Try again.")
+
+def VideoDownload():
+
+    print("Select how you want to download: (best quality, resolution selector) - PLAYLISTS ARE NOT SUPPORTED NOW")
+    options = {
+        "best quality": VideoDownloadBestQuality,
+        "resolution selector": VideoDownloadWithSelector
+    }
+
+    completer = WordCompleter(options.keys(), ignore_case=True)
+    
+    while True:
+        choice = prompt("Select an option: ", completer=completer).strip().lower()
+        if choice in options:
+            options[choice]()
+            exit()
+        else:
+            print("Invalid choice. Try again.")
 
 def videoResSelector(url, title):
     ydl_opts = {
