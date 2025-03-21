@@ -43,3 +43,6 @@ if __name__ == "__main__":
     print("Select what you want to do: (download, convert)")
     main_menu()
 
+
+#BUILD SCRIPT
+#pyinstaller.exe --onefile --specpath .\build\ -n MedKIT .\main.py
