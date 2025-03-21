@@ -5,6 +5,7 @@ import shutil
 from datetime import datetime
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
+import convertor as cc
 
 def Download():
     print("Select how you want to download: (video, audio)")
@@ -59,13 +60,19 @@ def AudioDownload():
         else:
             print("Invalid choice. Try again.")
             
+            
 def AudioDownloadPlaylist():
     url = input("Enter URL: ")
     title = getTitle(url)
     urls = getPlaylistUrls(url)
+    files = getPlaylistAudioTitles(url)
+    dirname = f"{title} - MedKIT"
     
-    os.mkdir(title)
-    os.chdir(title)
+    if dirname in os.listdir("."):
+        dirname = f"{dirname} {datetime.now().strftime("%Y%m%d-%H%M%S")}"
+    
+    os.mkdir(dirname)
+    os.chdir(dirname)
     
     index = 1
     for url in urls:
@@ -73,20 +80,25 @@ def AudioDownloadPlaylist():
         audioDownload(url, audioQtySelector(url))
         index += 1
     
-    print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{title}'")
+    cc.PostDownloadConvertPlaylist(dirname, files)
+    
+    print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{dirname}'")
 
 def AudioDownloadBestQuality():
     url = input("Enter URL: ")
     title = getTitle(url)
+    filename = f"{title}.m4a"
     
     audioDownload(url, audioQtySelector(url))
-    print(f"Audio downloaded successfully, you can find it in this directory named {title}")
+    cc.PostDownloadConvert(filename, title)
+    
 
 
 def videoResSelector(url, title):
     ydl_opts = {
         'noplaylist': True,
-        'quiet': True
+        'quiet': True,
+        'skip_download': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
@@ -113,7 +125,8 @@ def videoResSelector(url, title):
 
 def videoBestQualitySelector(url, title):
     ydl_opts = {
-        'quiet': True
+        'quiet': True,
+        'skip_download': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
@@ -163,7 +176,8 @@ def videoDownload(url, formatID):
     ydl_opts = {
         'noplaylist': True,
         'quiet': True,
-        'format': combinedID
+        'format': combinedID,
+        'progress':True
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
@@ -173,8 +187,9 @@ def audioDownload(url, formatID):
     print("Downloading audio track... ")
     ydl_opts = {
         'outtmpl': "%(title)s.%(ext)s",
-        'quiet': False,
-        'format': formatID
+        'quiet': True,
+        'format': formatID,
+        'progress':True
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
@@ -182,7 +197,8 @@ def audioDownload(url, formatID):
 
 def audioQtySelector(url) :
     ydl_opts = {
-        'quiet': True
+        'quiet': True,
+        'skip_download': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
@@ -196,7 +212,7 @@ def audioQtySelector(url) :
             continue
 
 def getTitle(url):
-    ydl_opts = {'quiet': True, 'noplaylist': True}
+    ydl_opts = {'quiet': True, 'noplaylist': True, 'skip_download': True, 'no-warnings': True}
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return info.get('title')  
@@ -204,8 +220,9 @@ def getTitle(url):
 def getPlaylistUrls(url):
     ydl_opts = {
         'quiet': True,
-        'extract_flat': True,  # Don't download, just extract URLs
-        'skip_download': True
+        'extract_flat': True,
+        'skip_download': True,
+        'no-warnings': True
     }
 
     with YoutubeDL(ydl_opts) as ydl:
@@ -213,8 +230,23 @@ def getPlaylistUrls(url):
         return [entry['url'] for entry in info.get('entries', []) if 'url' in entry]
 
 
+def getPlaylistAudioTitles(url):
+    ydl_opts = {
+        'quiet': True,
+        'extract_flat': True,
+        'skip_download': True,
+        'no-warnings': True
+    }
+
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        titles = []
+        for entry in info.get('entries'):
+            titles.append(entry['title'])
+        return titles
+
 if __name__ == "__main__":
-    VideoDownloadBestQuality()
+    getPlaylistAudioTitles("https://music.youtube.com/playlist?list=PL5jddfnHUMMX3RKNFu-xngVGufOGxtCZ0")
 
 
 def test():

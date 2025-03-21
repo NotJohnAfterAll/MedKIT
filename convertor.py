@@ -126,6 +126,56 @@ def userSelection(formats):
         options[choice]()
         break
     
+def PostDownloadConvertPlaylist(dirname, files):
+    if postDowloadConvertUserSelection() == 0:
+        print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{dirname}'")
+        exit()
+        
+    print("Converting your playlist now, please wait...")
+        
+    index = 0
+    for file in files:
+        file = f"{file}.m4a"
+        print(f"Convering entry {index}/{len(files)}")
+        postDownloadConvert(file, targetFormat)
+        index += 1
+    print(f"Playlist downloaded and converted successfully, new folder has been created for your playlist files called '{dirname}'")
+    
+def PostDownloadConvert(file, title):
+    if postDowloadConvertUserSelection() == 0:
+        print(f"Audio downloaded successfully, you can find it in this directory named {title}")
+        exit()
+    
+    postDownloadConvert(file, targetFormat)
+    print(f"Your file has been successfully downloaded and converted, you can find it in same directory called '{file}.{targetFormat}'")
+    
+def postDowloadConvertUserSelection():
+    print("What file format you want your audio to be? Hit enter for skip (m4a) or select from following (mp3, flac, wav, ogg, webm, acc)")
+    formats = ["mp3", "flac", "wav", "ogg", "webm", "acc"]
+    options = {format: (lambda fmt=format: setTargetFormat(fmt)) for format in formats}
+    
+    completer = WordCompleter(options.keys(), ignore_case=True)
+    
+    while True:
+        choice = prompt("Select an option: ", completer=completer).strip().lower()
+
+        if choice not in options and choice != "":
+            raise ValueError("Invalid choice. Try again")
+        elif choice == "":
+            return 0
+        options[choice]()
+        break
+    
+def postDownloadConvert(filepath, targetFormat):
+    oldfile = os.path.basename(filepath)
+    filename = os.path.basename(filepath)
+    filename = filename.rsplit(".", 1)[0]
+    filename = f"{filename}.{targetFormat}"
+
+    input = ffmpeg.input(filepath, hwaccel='cuda')
+    ffmpeg.output(input, filename, loglevel="quiet").run()
+    os.remove(oldfile)
+
 
 if __name__ == "__main__":
     Convert()
