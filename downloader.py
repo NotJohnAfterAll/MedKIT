@@ -1,11 +1,11 @@
 from yt_dlp import YoutubeDL
 import ffmpeg
 import os
-import shutil
 from datetime import datetime
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 import convertor as cc
+import re
 
 def Download():
     print("Select how you want to download: (video, audio)")
@@ -67,6 +67,7 @@ def AudioDownloadPlaylist():
     urls = getPlaylistUrls(url)
     files = getPlaylistAudioTitles(url)
     dirname = f"{title} - MedKIT"
+    dirname = re.sub(r'[<>:"/\\|?*]', '', dirname)
     
     if dirname in os.listdir("."):
         dirname = f"{dirname} {datetime.now().strftime("%Y%m%d-%H%M%S")}"
@@ -80,9 +81,7 @@ def AudioDownloadPlaylist():
         audioDownload(url, audioQtySelector(url))
         index += 1
     
-    cc.PostDownloadConvertPlaylist(dirname, files)
-    
-    print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{dirname}'")
+    cc.PostAudioDownloadConvertPlaylist(dirname, files)
 
 def AudioDownloadBestQuality():
     url = input("Enter URL: ")
@@ -90,9 +89,8 @@ def AudioDownloadBestQuality():
     filename = f"{title}.m4a"
     
     audioDownload(url, audioQtySelector(url))
-    cc.PostDownloadConvert(filename, title)
+    cc.PostAudioDownloadConvert(filename, title)
     
-
 
 def videoResSelector(url, title):
     ydl_opts = {
@@ -174,6 +172,7 @@ def videoDownload(url, formatID):
     combinedID = '+'.join(combinedID_tuple)
     print("Downloading video and audio tracks... ")
     ydl_opts = {
+        'outtmpl': "%(title)s.%(ext)s",
         'noplaylist': True,
         'quiet': True,
         'format': combinedID,
@@ -206,7 +205,7 @@ def audioQtySelector(url) :
     formats = data.get('formats', [])
 
     for f in formats:
-        if f.get('resolution') == 'audio only' and f.get('ext') == "m4a" and len(f.get('format_id')) == 3:
+        if f.get('resolution') == 'audio only' and f.get('ext') == "m4a" and "original" in f.get('format_note'):
             return f.get('format_id')
         else:
             continue
@@ -246,10 +245,5 @@ def getPlaylistAudioTitles(url):
         return titles
 
 if __name__ == "__main__":
-    getPlaylistAudioTitles("https://music.youtube.com/playlist?list=PL5jddfnHUMMX3RKNFu-xngVGufOGxtCZ0")
-
-
-def test():
-    now = datetime.now() 
-    print(str(now.strftime("%d/%m/%Y %H:%M:%S")))
-
+    print(audioQtySelector("https://www.youtube.com/watch?v=d-4JJbk3ZS0"))
+    
