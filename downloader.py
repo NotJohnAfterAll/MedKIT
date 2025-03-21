@@ -7,10 +7,10 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
 def Download():
-    print("Select how you want to download: (VIDEO, AUDIO)")
+    print("Select how you want to download: (video, audio)")
     options = {
         "video": VideoDownload,
-        "audio": VideoDownloadWithSelector
+        "audio": AudioDownload
     }
 
     completer = WordCompleter(options.keys(), ignore_case=True)
@@ -40,6 +40,48 @@ def VideoDownload():
             exit()
         else:
             print("Invalid choice. Try again.")
+
+def AudioDownload():
+
+    print("Select how you want to download: (best quality, playlist)")
+    options = {
+        "best quality": AudioDownloadBestQuality,
+        "playlist": AudioDownloadPlaylist
+    }
+
+    completer = WordCompleter(options.keys(), ignore_case=True)
+    
+    while True:
+        choice = prompt("Select an option: ", completer=completer).strip().lower()
+        if choice in options:
+            options[choice]()
+            exit()
+        else:
+            print("Invalid choice. Try again.")
+            
+def AudioDownloadPlaylist():
+    url = input("Enter URL: ")
+    title = getTitle(url)
+    urls = getPlaylistUrls(url)
+    
+    os.mkdir(title)
+    os.chdir(title)
+    
+    index = 1
+    for url in urls:
+        print(f"Downloading entry {index}/{len(urls)}")
+        audioDownload(url, audioQtySelector(url))
+        index += 1
+    
+    print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{title}'")
+
+def AudioDownloadBestQuality():
+    url = input("Enter URL: ")
+    title = getTitle(url)
+    
+    audioDownload(url, audioQtySelector(url))
+    print(f"Audio downloaded successfully, you can find it in this directory named {title}")
+
 
 def videoResSelector(url, title):
     ydl_opts = {
@@ -130,7 +172,7 @@ def videoDownload(url, formatID):
 def audioDownload(url, formatID):
     print("Downloading audio track... ")
     ydl_opts = {
-        'outtmpl': "audio.%(ext)s",
+        'outtmpl': "%(title)s.%(ext)s",
         'quiet': False,
         'format': formatID
     }
@@ -159,6 +201,16 @@ def getTitle(url):
         info = ydl.extract_info(url, download=False)
         return info.get('title')  
         
+def getPlaylistUrls(url):
+    ydl_opts = {
+        'quiet': True,
+        'extract_flat': True,  # Don't download, just extract URLs
+        'skip_download': True
+    }
+
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return [entry['url'] for entry in info.get('entries', []) if 'url' in entry]
 
 
 if __name__ == "__main__":
