@@ -203,9 +203,14 @@ def audioQtySelector(url) :
         data = ydl.extract_info(url, download=False) 
 
     formats = data.get('formats', [])
+    multipletracks = ""
 
     for f in formats:
-        if f.get('resolution') == 'audio only' and f.get('ext') == "m4a" and "original" in f.get('format_note'):
+        if len(f.get('format_id')) == 5:
+            multipletracks = "original"
+        
+    for f in formats:
+        if f.get('resolution') == 'audio only' and f.get('ext') == "m4a" and multipletracks in f.get('format_note') and len(f.get('format_id')) <= 5:
             return f.get('format_id')
         else:
             continue
