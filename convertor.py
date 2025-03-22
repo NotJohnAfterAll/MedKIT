@@ -10,7 +10,7 @@ import sys
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
 
 def Convert():
-    print("Select what file type you want to download (video, audio, image): ")
+    print("Select what file type you want to convert (video, audio, image): ")
     options = {
         "video": ConvertVideo,
         "audio": ConvertAudio,
@@ -92,7 +92,7 @@ def convert(filepath, targetFormat):
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
-    input = ffmpeg.input(filepath, hwaccel='cuda')
+    input = ffmpeg.input(filepath, hwaccel='auto')
     ffmpeg.output(input, filename).run()
 
     print(f"Your file has been successfully converted, you can find it in same directory called '{filename}'")
@@ -105,7 +105,7 @@ def stillconvert(filepath, targetFormat):
     os.chdir(workdir)
 
 
-    input = ffmpeg.input(filepath, hwaccel='cuda')
+    input = ffmpeg.input(filepath, hwaccel='auto')
     ffmpeg.output(input, filename, vframes=1).run()
     
     
@@ -173,7 +173,7 @@ def postAudioDownloadConvert(filepath, targetFormat):
     filename = filename.rsplit(".", 1)[0]
     filename = f"{filename}.{targetFormat}"
 
-    input = ffmpeg.input(filepath, hwaccel='cuda')
+    input = ffmpeg.input(filepath, hwaccel='auto')
     ffmpeg.output(input, filename, loglevel="quiet").run()
     os.remove(oldfile)
 
