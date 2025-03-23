@@ -77,10 +77,15 @@ def AudioDownloadPlaylist():
     
     index = 1
     for url in urls:
-        print(f"Downloading entry {index}/{len(urls)}")
-        audioDownload(url, audioQtySelector(url))
+        try:
+            print(f"Downloading entry {index}/{len(urls)}")
+            audioDownload(url, audioQtySelector(url))
+        except:
+            print("This entry is unavailable... continuing")
         index += 1
-    
+        
+    files.remove('[Deleted video]')
+    print(files)
     cc.PostAudioDownloadConvertPlaylist(dirname, files)
 
 def AudioDownloadBestQuality():
@@ -216,7 +221,7 @@ def audioQtySelector(url) :
             continue
 
 def getTitle(url):
-    ydl_opts = {'quiet': True, 'noplaylist': True, 'skip_download': True, 'no-warnings': True}
+    ydl_opts = {'quiet': True, 'noplaylist': True, 'skip_download': True, 'no-warnings': True, 'ignoreerrors': True}
     with YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=False)
         return info.get('title')  
