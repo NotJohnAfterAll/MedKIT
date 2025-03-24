@@ -136,7 +136,6 @@ def PostAudioDownloadConvertPlaylist(dirname, files):
         
     index = 0
     for file in files:
-        file = f"{file}.m4a"
         print(f"Convering entry {index}/{len(files)}")
         postAudioDownloadConvert(file, targetFormat)
         index += 1

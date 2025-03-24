@@ -83,10 +83,10 @@ def AudioDownloadPlaylist():
         except:
             print("This entry is unavailable... continuing")
         index += 1
+        if "[Deleted video]" in url:
+            files.remove('[Deleted video]')
         
-    files.remove('[Deleted video]')
-    print(files)
-    cc.PostAudioDownloadConvertPlaylist(dirname, files)
+    cc.PostAudioDownloadConvertPlaylist(dirname, os.listdir("."))
 
 def AudioDownloadBestQuality():
     url = input("Enter URL: ")
