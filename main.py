@@ -3,6 +3,7 @@ import convertor as cc
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 import threading
+import os
 
 def download():
     dl.Download()
@@ -39,9 +40,20 @@ def main_menu():
             print("Invalid choice. Try again.")
 
 if __name__ == "__main__":
-    print("Welcome to MedKIT")
-    print("Select what you want to do: (download, convert)")
-    main_menu()
+    try:
+        print("Welcome to MedKIT")
+        print("Select what you want to do: (download, convert)")
+
+        currentDir = os.path.dirname(os.path.abspath(__file__))
+        ffmpegBin = os.path.join(currentDir, 'build', 'ffmpeg', 'bin')
+        os.environ['PATH'] += os.pathsep + ffmpegBin
+
+        main_menu()
+        print("Exiting...")
+        input("Press any key to continue...")
+    except KeyboardInterrupt:
+        print("Interrupted... exiting...")
+        os._exit(130)
 
 
 #BUILD SCRIPT
