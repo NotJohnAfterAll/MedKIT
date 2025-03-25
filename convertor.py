@@ -9,6 +9,20 @@ import sys
 
 sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
 
+types = {
+        "video": ("Videos", ".mp4 .mov .mkv .avi .webm"),
+        "audio": ("Audio", ".mp3 .flac .wav .m4a .ogg .webm .acc"),
+        "image": ("Images", ".jpg .jpeg .png .webp .svg .avif .ico"),
+        "any": ("Media", ".mp4 .mov .mkv .avi .webm .mp3 .flac .wav .m4a .ogg .webm .acc .jpg .jpeg .png .webp .svg .avif .ico" )
+    }
+
+filetypes = {
+    "video": ["mp4", "mov", "mkv", "avi", "webm"],
+    "audio": ["mp3", "flac", "wav", "m4a", "ogg", "webm", "acc"],
+    "image": ["jpg", "jpeg", "png", "webp", "svg", "avif", "ico"],
+    "any": [".mp4", ".mov", ".mkv", ".avi", ".webm", ".mp3", ".flac", ".wav", ".m4a", ".ogg", ".acc", ".jpg", ".jpeg", ".png", ".webp", ".svg", ".avif", ".ico" ]
+}
+
 def Convert():
     print("Select what file type you want to convert (video, audio, image): ")
     options = {
@@ -27,13 +41,11 @@ def Convert():
         else:
             print("Invalid choice. Try again.")
 
+def manualConvert():
+    print()
+
 
 def getFile(type):
-    types = {
-        "video": ("Videos", ".mp4 .mov .mkv .avi .webm"),
-        "audio": ("Audio", ".mp3 .flac .wav .m4a .ogg .webm .acc"),
-        "image": ("Images", ".jpg .jpeg .png .webp .svg .avif .ico")
-    }
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     root.update()
@@ -50,7 +62,7 @@ def setTargetFormat(format):
     targetFormat = format
 
 def ConvertVideo():
-    formats = ["mp4", "mov", "mkv", "avi", "webm"]
+    formats = filetypes["video"]
     file = getFile("video")
     fileFormat = file.split(".")[-1].lower()
     formats.remove(fileFormat)
@@ -62,7 +74,7 @@ def ConvertVideo():
     convert(file, targetFormat)
 
 def ConvertAudio():
-    formats = ["mp3", "flac", "wav", "m4a", "ogg", "webm", "acc"]
+    formats = filetypes["audio"]
     file = getFile("audio")
     fileFormat = file.split(".")[-1].lower()
     formats.remove(fileFormat)
@@ -74,7 +86,7 @@ def ConvertAudio():
     convert(file, targetFormat)
 
 def ConvertImage():
-    formats = ["jpg", "jpeg", "png", "webp", "svg", "avif", "ico"]
+    formats = filetypes["image"]
     file = getFile("image")
     fileFormat = file.split(".")[-1].lower()
     formats.remove(fileFormat)
@@ -87,8 +99,7 @@ def ConvertImage():
 
 def convert(filepath, targetFormat):
     workdir = os.path.dirname(filepath)
-    filename = os.path.basename(filepath)
-    filename = filename.rsplit(".", 1)[0]
+    filename = os.path.basename(filepath).rsplit(".", 1)[0]
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
@@ -99,15 +110,12 @@ def convert(filepath, targetFormat):
 
 def stillconvert(filepath, targetFormat):
     workdir = os.path.dirname(filepath)
-    filename = os.path.basename(filepath)
-    filename = filename.rsplit(".", 1)[0]
+    filename = os.path.basename(filepath).rsplit(".", 1)[0]
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
-
     input = ffmpeg.input(filepath, hwaccel='auto')
     ffmpeg.output(input, filename, vframes=1).run()
-    
     
     print(f"\n Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
@@ -127,7 +135,7 @@ def userSelection(formats):
         break
     
 def PostAudioDownloadConvertPlaylist(dirname, files):
-    formats = ["mp3", "flac", "wav", "ogg", "webm", "acc"]
+    formats = filetypes["audio"]
     if postDownloadConvertUserSelection(formats) == 0:
         print(f"Playlist downloaded successfully, new folder has been created for your playlist files called '{dirname}'")
         exit()
@@ -142,7 +150,7 @@ def PostAudioDownloadConvertPlaylist(dirname, files):
     print(f"Playlist downloaded and converted successfully, new folder has been created for your playlist files called '{dirname}'")
     
 def PostAudioDownloadConvert(file, title):
-    formats = ["mp3", "flac", "wav", "ogg", "webm", "acc"]
+    formats = filetypes["audio"]
     if postDownloadConvertUserSelection(formats) == 0:
         print(f"Audio downloaded successfully, you can find it in this directory named {title}")
         exit()
@@ -153,12 +161,10 @@ def PostAudioDownloadConvert(file, title):
 def postDownloadConvertUserSelection(formats):
     print("What file format you want your audio to be? Hit enter for skip (m4a) or select from following (mp3, flac, wav, ogg, webm, acc)")
     options = {format: (lambda fmt=format: setTargetFormat(fmt)) for format in formats}
-    
     completer = WordCompleter(options.keys(), ignore_case=True)
     
     while True:
         choice = prompt("Select an option: ", completer=completer).strip().lower()
-
         if choice not in options and choice != "":
             raise ValueError("Invalid choice. Try again")
         elif choice == "":
@@ -168,8 +174,7 @@ def postDownloadConvertUserSelection(formats):
     
 def postAudioDownloadConvert(filepath, targetFormat):
     oldfile = os.path.basename(filepath)
-    filename = os.path.basename(filepath)
-    filename = filename.rsplit(".", 1)[0]
+    filename = os.path.basename(filepath).rsplit(".", 1)[0]
     filename = f"{filename}.{targetFormat}"
 
     input = ffmpeg.input(filepath, hwaccel='auto')

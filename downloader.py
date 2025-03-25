@@ -43,7 +43,6 @@ def VideoDownload():
             print("Invalid choice. Try again.")
 
 def AudioDownload():
-
     print("Select how you want to download: (best quality, playlist)")
     options = {
         "best quality": AudioDownloadBestQuality,
@@ -66,7 +65,7 @@ def AudioDownloadPlaylist():
     title = getTitle(url)
     urls = getPlaylistUrls(url)
     files = getPlaylistAudioTitles(url)
-    dirname = f"{title} - MedKIT"
+    dirname = f"{title}"
     dirname = re.sub(r'[<>:"/\\|?*]', '', dirname)
     
     if dirname in os.listdir("."):
@@ -111,7 +110,6 @@ def videoResSelector(url, title):
     usrToID = {}
     id = 1;
 
-
     for f in formats:
         
         if f.get('resolution') != 'audio only' and ('vp' in f.get('vcodec') or 'avc1' in f.get('vcodec')) and f.get('fps') > 23 and f.get('ext') == "mp4":
@@ -120,7 +118,6 @@ def videoResSelector(url, title):
             id = id + 1
         else:
             continue
-        
         
     usrInput = input("Enter number coresponding to your selected resolution and quality:")        
     return usrToID[int(usrInput)]
@@ -140,12 +137,12 @@ def videoBestQualitySelector(url, title):
         if f.get('resolution') != 'audio only' and ('vp' in f.get('vcodec') or 'avc1' in f.get('vcodec')) and f.get('fps') > 23 and f.get('ext') == "mp4" and len(f.get('format_id')) == 3:
             selectedResolution = f.get('resolution')
             selectedFormat = f.get('format_id')
-                
         else:
             continue
         
     print(f"Downloading best quality possible for {title}, being {selectedResolution}: ")
     return selectedFormat
+
 
 def VideoDownloadBestQuality():
     url = input("Enter URL: ")
@@ -181,7 +178,8 @@ def videoDownload(url, formatID):
         'noplaylist': True,
         'quiet': True,
         'format': combinedID,
-        'progress':True
+        'progress':True,
+        'no-warnings': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
@@ -193,7 +191,8 @@ def audioDownload(url, formatID):
         'outtmpl': "%(title)s.%(ext)s",
         'quiet': True,
         'format': formatID,
-        'progress':True
+        'progress':True,
+        'no-warnings': True
     }
     with YoutubeDL(ydl_opts) as ydl:
         ydl.download(url)
