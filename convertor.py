@@ -80,6 +80,8 @@ def ManualConvert():
     formats = filetypes["any"]
     file = getFile("media")
     fileFormat = file.split(".")[-1].lower()
+    if getFileCategory(fileFormat) == "audio":
+        formats = filetypes["audio"]
     formats.remove(fileFormat)
     targetFormat = userSelection(formats, "format")
 
@@ -93,10 +95,6 @@ def manualConvert(type, file, targetFormat):
 
     os.chdir(workdir)
 
-    vcodec = "copy"
-    vbitrate = "0"
-    acodec = "copy"
-
     if type == "video":
         vcodec = manualCovertOptionsFFmpeg[userSelection(manualCovertOptions["vcodecs"], "codec")]
         vbitrate = f"{input(f'[bold {scriptSecondaryColor}]MedKIT Convertor:[/] Enter video bitrate in thousands (6000 = 6000k): ')}k"
@@ -104,11 +102,20 @@ def manualConvert(type, file, targetFormat):
         if nvencPresent.lower() == "y":
             vbitrate = f"{vbitrate}_nvenc"
         acodec = userSelection(manualCovertOptions["acodecs"], "codec")
+        
+        try:
+            ffmpeg_input = ffmpeg.input(file, hwaccel='cuda')
+            ffmpeg.output(ffmpeg_input, filename, vcodec=vcodec, acodec=acodec, audio_bitrate=abitrate, video_bitrate=vbitrate).run()
+        except:
+            print(f"[bold {errorColor}]MedKIT:[/] Conversion failed! Read the ffmpeg error or submit a bug on GitHub\n")
     
     abitrate = f"{input(f'[bold {scriptSecondaryColor}]MedKIT Convertor:[/] Enter audio bitrate in thousands (320 = 320k): ')}k"
 
-    ffmpeg_input = ffmpeg.input(file, hwaccel='cuda')
-    ffmpeg.output(ffmpeg_input, filename, vcodec=vcodec, acodec=acodec, audio_bitrate=abitrate, video_bitrate=vbitrate).run()
+    try:
+        ffmpeg_input = ffmpeg.input(file, hwaccel='cuda')
+        ffmpeg.output(ffmpeg_input, filename, audio_bitrate=abitrate).run()
+    except:
+        print(f"[bold {errorColor}]MedKIT:[/] Conversion failed! Read the ffmpeg error or submit a bug on GitHub\n")
 
     print(f"[bold {successColor}]MedKIT Convertor:[/] Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
@@ -136,9 +143,12 @@ def convert(filepath, targetFormat):
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
-    input = ffmpeg.input(filepath, hwaccel='auto')
-    ffmpeg.output(input, filename).run()
-
+    try:
+        input = ffmpeg.input(filepath, hwaccel='auto')
+        ffmpeg.output(input, filename).run()
+    except:
+        print(f"[bold {errorColor}]MedKIT:[/] Conversion failed! Read the ffmpeg error or submit a bug on GitHub \n")
+    
     print(f"[bold {successColor}]MedKIT Convertor:[/] Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
 def stillconvert(filepath, targetFormat):
@@ -147,8 +157,11 @@ def stillconvert(filepath, targetFormat):
     filename = f"{filename}.{targetFormat}"
     os.chdir(workdir)
 
-    input = ffmpeg.input(filepath, hwaccel='auto')
-    ffmpeg.output(input, filename, vframes=1).run()
+    try:
+        input = ffmpeg.input(filepath, hwaccel='auto')
+        ffmpeg.output(input, filename, vframes=1).run()
+    except:
+        print(f"[bold {errorColor}]MedKIT:[/] Conversion failed! Read the ffmpeg error or submit a bug on GitHub \n")
     
     print(f"\n [bold {successColor}]MedKIT Convertor:[/] Your file has been successfully converted, you can find it in same directory called '{filename}'")
 
@@ -165,7 +178,6 @@ def userSelection(formats, txt):
         if choice not in options:
             raise ValueError(f"[bold {errorColor}]MedKIT Convertor:[/] Invalid choice. Try again")
         options[choice]()
-        print(choice)
         return choice
         break
     
@@ -179,7 +191,7 @@ def PostAudioDownloadConvertPlaylist(dirname, files):
         
     index = 0
     for file in files:
-        print(f"Convering entry {index}/{len(files)}")
+        print(f"Converting entry {index}/{len(files)}")
         postAudioDownloadConvert(file, targetFormat)
         index += 1
     print(f"[bold {successColor}]MedKIT Convertor:[/] Playlist downloaded and converted successfully, new folder has been created for your playlist files called '{dirname}'")
@@ -187,11 +199,12 @@ def PostAudioDownloadConvertPlaylist(dirname, files):
 def PostAudioDownloadConvert(file, title):
     targetFormat = postDownloadConvertUserSelection(filetypes["audio"])
     if targetFormat == 0:
-        print(f"[bold {successColor}]MedKIT Convertor:[/] Audio downloaded successfully, you can find it in this directory named {title}")
+        print(f"[bold {successColor}]MedKIT Convertor:[/] Audio downloaded successfully, you can find it in this directory named {file}")
         exit()
     
     postAudioDownloadConvert(file, targetFormat)
-    print(f"[bold {successColor}]MedKIT Convertor:[/] Your file has been successfully downloaded and converted, you can find it in same directory called '{file}.{targetFormat}'")
+    filename = os.path.basename(file).rsplit(".", 1)[0]
+    print(f"[bold {successColor}]MedKIT Convertor:[/] Your file has been successfully downloaded and converted, you can find it in same directory called '{filename}.{targetFormat}'")
     
 def postDownloadConvertUserSelection(formats):
     print(f"[bold {scriptSecondaryColor}]MedKIT Convertor:[/] What file format you want your audio to be? Hit enter for skip (m4a) or select from following (mp3, flac, wav, ogg, webm, acc)")
@@ -205,6 +218,7 @@ def postDownloadConvertUserSelection(formats):
         elif choice == "":
             return 0
         options[choice]()
+        return choice
         break
     
 def postAudioDownloadConvert(filepath, targetFormat):
@@ -212,9 +226,12 @@ def postAudioDownloadConvert(filepath, targetFormat):
     filename = os.path.basename(filepath).rsplit(".", 1)[0]
     filename = f"{filename}.{targetFormat}"
 
-    input = ffmpeg.input(filepath, hwaccel='auto')
-    ffmpeg.output(input, filename, loglevel="quiet").run()
-    os.remove(oldfile)
+    try:
+        input = ffmpeg.input(filepath, hwaccel='auto')
+        ffmpeg.output(input, filename, loglevel="quiet").run()
+        os.remove(oldfile)
+    except:
+        print(f"\n[bold {errorColor}]MedKIT:[/] Conversion failed! Read the ffmpeg error or submit a bug on GitHub")
 
 
 if __name__ == "__main__":

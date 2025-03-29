@@ -113,7 +113,7 @@ def videoResSelector(url, title):
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
-    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Available resolutions for {title}: ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Available resolutions for '{title}': ")
     formats = data.get('formats', [])
     usrToID = {}
     id = 1;
@@ -148,7 +148,7 @@ def videoBestQualitySelector(url, title):
         else:
             continue
         
-    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading best quality possible for {title}, being {selectedResolution}: ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading best quality possible for '{title}', being '{selectedResolution}': ")
     return selectedFormat
 
 
@@ -157,7 +157,7 @@ def VideoDownloadBestQuality():
     title = getTitle(url)
     
     videoDownload(url, videoBestQualitySelector(url, title))
-    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named {title}")
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}'")
 
 
 def VideoDownloadWithSelector():
@@ -165,7 +165,7 @@ def VideoDownloadWithSelector():
     title = getTitle(url)
     
     videoDownload(url, videoResSelector(url, title))
-    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named {title}")
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}'")
 
 
 def videoDownload(url, formatID):

@@ -34,8 +34,7 @@ def main_menu():
         choice = prompt("Select an option: ", completer=completer).strip()
         if choice in options:
             options[choice]()
-            if input(f"[bold {scriptColor}]MedKIT:[/] Do you want to download/convert another? (n/Y): ").lower() == "n":
-                exit_program()
+            break
 
         else:
             print(f"[bold {errorColor}]MedKIT:[/] Invalid choice. Try again.")
@@ -43,9 +42,15 @@ def main_menu():
 if __name__ == "__main__":
     try:
         print(f"Welcome to [bold {scriptColor}]MedKIT[/]")
-        print(f"[bold {scriptColor}]MedKIT:[/] Select what you want to do: (download, convert)")
+        while True:
+            print(f"[bold {scriptColor}]MedKIT:[/] Select what you want to do: (download, convert)")
 
-        main_menu()
+            main_menu()
+            
+            print(f"[bold {scriptColor}]MedKIT:[/] Do you want to use [bold {scriptColor}]MedKIT[/] again? (n/Y): ", end="")
+            if input().lower() == "n":
+                exit_program()
+                
     except KeyboardInterrupt:
         print(f"\n[bold {errorColor}]MedKIT:[/] Interrupted... exiting...")
         os._exit(130)
