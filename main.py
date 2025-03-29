@@ -5,6 +5,7 @@ from prompt_toolkit.completion import WordCompleter
 import threading
 import os
 from rich import print
+import importlib
 
 scriptColor = "blue"
 errorColor = "red"
@@ -50,6 +51,8 @@ if __name__ == "__main__":
             print(f"[bold {scriptColor}]MedKIT:[/] Do you want to use [bold {scriptColor}]MedKIT[/] again? (n/Y): ", end="")
             if input().lower() == "n":
                 exit_program()
+            importlib.reload(dl)
+            importlib.reload(cc)
                 
     except KeyboardInterrupt:
         print(f"\n[bold {errorColor}]MedKIT:[/] Interrupted... exiting...")
