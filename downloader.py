@@ -6,9 +6,18 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 import convertor as cc
 import re
+from rich import print
+from rich.console import Console
+
+console = Console()
+
+scriptColor = "magenta"
+scriptSecondaryColor = "dark_magenta"
+errorColor = "red"
+successColor = "green"
 
 def Download():
-    print("Select how you want to download: (video, audio)")
+    print(f"[bold {scriptColor}]MedKIT Downloader:[/] Select what you want to download: (video, audio)")
     options = {
         "video": VideoDownload,
         "audio": AudioDownload
@@ -20,13 +29,12 @@ def Download():
         choice = prompt("Select an option: ", completer=completer).strip().lower()
         if choice in options:
             options[choice]()
-            exit()
+            break
         else:
-            print("Invalid choice. Try again.")
+            print(f"[bold {errorColor}]MedKIT Downloader:[/] Invalid choice. Try again.")
 
 def VideoDownload():
-
-    print("Select how you want to download: (best quality, resolution selector) - PLAYLISTS ARE NOT SUPPORTED NOW")
+    print(f"[bold {scriptColor}]MedKIT Downloader:[/] Select how you want to download: (best quality, resolution selector) - PLAYLISTS ARE NOT SUPPORTED NOW")
     options = {
         "best quality": VideoDownloadBestQuality,
         "resolution selector": VideoDownloadWithSelector
@@ -40,10 +48,10 @@ def VideoDownload():
             options[choice]()
             exit()
         else:
-            print("Invalid choice. Try again.")
+            print(f"[bold {errorColor}]MedKIT Downloader:[/] Invalid choice. Try again.")
 
 def AudioDownload():
-    print("Select how you want to download: (best quality, playlist)")
+    print(f"[bold {scriptColor}]MedKIT Downloader:[/] Select how you want to download: (best quality, playlist)")
     options = {
         "best quality": AudioDownloadBestQuality,
         "playlist": AudioDownloadPlaylist
@@ -57,7 +65,7 @@ def AudioDownload():
             options[choice]()
             exit()
         else:
-            print("Invalid choice. Try again.")
+            print(f"[bold {errorColor}]MedKIT Downloader:[/] Invalid choice. Try again.")
             
             
 def AudioDownloadPlaylist():
@@ -77,10 +85,10 @@ def AudioDownloadPlaylist():
     index = 1
     for url in urls:
         try:
-            print(f"Downloading entry {index}/{len(urls)}")
+            print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading entry {index}/{len(urls)}")
             audioDownload(url, audioQtySelector(url))
         except:
-            print("This entry is unavailable... continuing")
+            print(f"[bold {errorColor}]MedKIT Downloader:[/] This entry is unavailable... continuing")
         index += 1
         if "[Deleted video]" in url:
             files.remove('[Deleted video]')
@@ -105,7 +113,7 @@ def videoResSelector(url, title):
     with YoutubeDL(ydl_opts) as ydl:
         data = ydl.extract_info(url, download=False) 
 
-    print(f"Available resolutions for {title}: ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Available resolutions for {title}: ")
     formats = data.get('formats', [])
     usrToID = {}
     id = 1;
@@ -114,12 +122,12 @@ def videoResSelector(url, title):
         
         if f.get('resolution') != 'audio only' and ('vp' in f.get('vcodec') or 'avc1' in f.get('vcodec')) and f.get('fps') > 23 and f.get('ext') == "mp4":
             usrToID.update({id : f.get('format_id')})
-            print(id, f.get('resolution'), f"{int(f.get('tbr'))}k")
+            console.print(id, f.get('resolution'), f"{int(f.get('tbr'))}k", highlight=False)
             id = id + 1
         else:
             continue
         
-    usrInput = input("Enter number coresponding to your selected resolution and quality:")        
+    usrInput = input("Enter number coresponding to your selected resolution and bitrate:")        
     return usrToID[int(usrInput)]
         
 
@@ -140,7 +148,7 @@ def videoBestQualitySelector(url, title):
         else:
             continue
         
-    print(f"Downloading best quality possible for {title}, being {selectedResolution}: ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading best quality possible for {title}, being {selectedResolution}: ")
     return selectedFormat
 
 
@@ -149,7 +157,7 @@ def VideoDownloadBestQuality():
     title = getTitle(url)
     
     videoDownload(url, videoBestQualitySelector(url, title))
-    print(f"Video downloaded successfully, you can find it in this directory named {title}")
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named {title}")
 
 
 def VideoDownloadWithSelector():
@@ -157,22 +165,14 @@ def VideoDownloadWithSelector():
     title = getTitle(url)
     
     videoDownload(url, videoResSelector(url, title))
-    print(f"Video downloaded successfully, you can find it in this directory named {title}")
-
-
-def MergeTracks():
-    print("Merging audio and video tracks... ")
-    video = ffmpeg.input('video.mp4', hwaccel='cuda')
-    audio = ffmpeg.input('audio.m4a', hwaccel='cuda')
-
-    ffmpeg.output(video, audio, "output.mp4",  vcodec='copy', acodec='aac', strict='experimental', shortest=None, loglevel='info').run(overwrite_output=True)
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named {title}")
 
 
 def videoDownload(url, formatID):
     audioFormatID = audioQtySelector(url)
     combinedID_tuple = (formatID, audioFormatID)
     combinedID = '+'.join(combinedID_tuple)
-    print("Downloading video and audio tracks... ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading video and audio track... ")
     ydl_opts = {
         'outtmpl': "%(title)s.%(ext)s",
         'noplaylist': True,
@@ -186,7 +186,7 @@ def videoDownload(url, formatID):
     
 
 def audioDownload(url, formatID):
-    print("Downloading audio track... ")
+    print(f"[bold {scriptSecondaryColor}]MedKIT Downloader:[/] Downloading audio track... ")
     ydl_opts = {
         'outtmpl': "%(title)s.%(ext)s",
         'quiet': True,
@@ -255,4 +255,3 @@ def getPlaylistAudioTitles(url):
 
 if __name__ == "__main__":
     print(audioQtySelector("https://www.youtube.com/watch?v=d-4JJbk3ZS0"))
-    

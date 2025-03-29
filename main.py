@@ -4,28 +4,27 @@ from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 import threading
 import os
+from rich import print
+
+scriptColor = "blue"
+errorColor = "red"
+successColor = "green"
 
 def download():
     dl.Download()
-    
-def downloadAudio():
-    print("Downloading Audio...")
 
 def convert():
     threading.Thread(target=cc.Convert()).start()
 
-def transcode():
-    print("Transcoding...")
-
 def exit_program():
-    print("Exiting...")
+    print(f"[bold {errorColor}]MedKIT:[/] Exiting...")
+    input("Press any key to continue...")
     exit()
 
 def main_menu():
     options = {
         "download": download,
         "convert": convert,
-        "transcode": transcode,
         "exit": exit_program
     }
 
@@ -35,24 +34,20 @@ def main_menu():
         choice = prompt("Select an option: ", completer=completer).strip()
         if choice in options:
             options[choice]()
-            exit()
+            if input(f"[bold {scriptColor}]MedKIT:[/] Do you want to download/convert another? (n/Y): ").lower() == "n":
+                exit_program()
+
         else:
-            print("Invalid choice. Try again.")
+            print(f"[bold {errorColor}]MedKIT:[/] Invalid choice. Try again.")
 
 if __name__ == "__main__":
     try:
-        print("Welcome to MedKIT")
-        print("Select what you want to do: (download, convert)")
-
-        currentDir = os.path.dirname(os.path.abspath(__file__))
-        ffmpegBin = os.path.join(currentDir, 'build', 'ffmpeg', 'bin')
-        os.environ['PATH'] += os.pathsep + ffmpegBin
+        print(f"Welcome to [bold {scriptColor}]MedKIT[/]")
+        print(f"[bold {scriptColor}]MedKIT:[/] Select what you want to do: (download, convert)")
 
         main_menu()
-        print("Exiting...")
-        input("Press any key to continue...")
     except KeyboardInterrupt:
-        print("Interrupted... exiting...")
+        print(f"\n[bold {errorColor}]MedKIT:[/] Interrupted... exiting...")
         os._exit(130)
 
 
