@@ -46,7 +46,7 @@ def VideoDownload():
         choice = prompt("Select an option: ", completer=completer).strip().lower()
         if choice in options:
             options[choice]()
-            exit()
+            break
         else:
             print(f"[bold {errorColor}]MedKIT Downloader:[/] Invalid choice. Try again.")
 
