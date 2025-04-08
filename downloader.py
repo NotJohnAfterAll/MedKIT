@@ -63,7 +63,7 @@ def AudioDownload():
         choice = prompt("Select an option: ", completer=completer).strip().lower()
         if choice in options:
             options[choice]()
-            exit()
+            break
         else:
             print(f"[bold {errorColor}]MedKIT Downloader:[/] Invalid choice. Try again.")
             
@@ -157,7 +157,7 @@ def VideoDownloadBestQuality():
     title = getTitle(url)
     
     videoDownload(url, videoBestQualitySelector(url, title))
-    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}'")
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}.mp4'")
 
 
 def VideoDownloadWithSelector():
@@ -165,7 +165,7 @@ def VideoDownloadWithSelector():
     title = getTitle(url)
     
     videoDownload(url, videoResSelector(url, title))
-    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}'")
+    print(f"[bold {successColor}]MedKIT Downloader:[/] Video downloaded successfully, you can find it in this directory named '{title}.mp4'")
 
 
 def videoDownload(url, formatID):
