@@ -185,8 +185,8 @@ def PostAudioDownloadConvertPlaylist(dirname, files):
     targetFormat = postDownloadConvertUserSelection(filetypes["audio"])
     if targetFormat == 0:
         print(f"[bold {successColor}]MedKIT Convertor:[/] Playlist downloaded successfully, new folder has been created for your playlist files called '{dirname}'")
-        exit()
-        
+        return
+            
     print(f"[bold {scriptColor}]MedKIT Convertor:[/] Converting your playlist now, please wait...")
         
     index = 0
@@ -200,7 +200,7 @@ def PostAudioDownloadConvert(file, title):
     targetFormat = postDownloadConvertUserSelection(filetypes["audio"])
     if targetFormat == 0:
         print(f"[bold {successColor}]MedKIT Convertor:[/] Audio downloaded successfully, you can find it in this directory named {file}")
-        exit()
+        return
     
     postAudioDownloadConvert(file, targetFormat)
     filename = os.path.basename(file).rsplit(".", 1)[0]
